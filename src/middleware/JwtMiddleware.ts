@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction, RequestHandler } from "express";
 import jwt from "jsonwebtoken";
 
-export interface customRequest extends Request {
+export interface CustomRequest extends Request {
   userId?: string;
 }
 
 export const jwtMiddleware: RequestHandler = (
-  req: customRequest,
+  req: CustomRequest,
   res: Response,
   next: NextFunction
 ) => {

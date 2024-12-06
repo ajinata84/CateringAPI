@@ -1,9 +1,15 @@
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
-import authRoutes from './routes/Auth'
-import userRoutes from './routes/User'
+import swaggerJsDoc from "swagger-jsdoc";
+import swaggerUi from "swagger-ui-express";
+import authRoutes from "./routes/Auth";
+import customerRoutes from "./routes/Customer";
+import ownerRoutes from "./routes/Owner";
+import cateringRoutes from "./routes/Catering";
+import orderRoutes from "./routes/Order";
 
+import "./swagger/cateringSwagger"; 
 
 const app = express();
 
@@ -11,10 +17,47 @@ app.use(cors());
 app.use(helmet());
 app.use(express.json());
 
-app.use("/auth", authRoutes);
-app.use("/user", userRoutes)
+const swaggerOptions = {
+  swaggerDefinition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Catering API",
+      version: "1.0.0",
+      description: "API documentation for Catering application",
+    },
+    servers: [
+      {
+        url: "http://localhost:3000",
+      },
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
+    },
+    security: [
+      {
+        bearerAuth: [],
+      },
+    ],
+  },
+  apis: ["./src/swagger/*.ts"], // Path to the Swagger documentation files
+};
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
+app.use("/auth", authRoutes);
+app.use("/customer", customerRoutes);
+app.use("/owner", ownerRoutes);
+app.use("/catering", cateringRoutes);
+app.use("/order", orderRoutes);
+
+
+app.listen(3000, () => {
+  console.log("Server is running on http://localhost:3000");
 });

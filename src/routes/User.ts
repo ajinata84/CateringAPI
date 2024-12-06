@@ -1,12 +1,12 @@
 import express from "express";
 import { PrismaClient } from "@prisma/client";
 import { z } from "zod";
-import { jwtMiddleware, customRequest } from "../middleware/JwtMiddleware";
+import { jwtMiddleware, CustomRequest } from "../middleware/JwtMiddleware";
 
 const router = express.Router();
 const prisma = new PrismaClient();
 
-router.get("/getData", jwtMiddleware, async (req: customRequest, res) => {
+router.get("/getData", jwtMiddleware, async (req: CustomRequest, res) => {
   const userId = req.userId!;
 
   try {

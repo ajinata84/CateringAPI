@@ -19,4 +19,123 @@ model users {
   username   String   @db.VarChar(20)
   email      String   @unique @db.VarChar(255)
   password   String   @db.VarChar(255)
+  hp         String?  @db.VarChar(20)
+  alamat     String?
+
+  Customer Customer?
+  Owner    Owner?
+}
+
+model Customer {
+  id     String  @id @default(uuid())
+  userId String  @unique
+  user   users   @relation(fields: [userId], references: [userId])
+  Orders Order[]
+}
+
+model Owner {
+  id         String      @id @default(uuid())
+  userId     String      @unique
+  user       users       @relation(fields: [userId], references: [userId])
+  Caterings  Catering[]
+  Manajemens Manajemen[]
+  Orders     Order[]
+}
+
+model Catering {
+  id         String        @id @default(uuid())
+  ownerId    String
+  owner      Owner         @relation(fields: [ownerId], references: [id])
+  nama       String
+  alamat     String?
+  hp         String?       @db.VarChar(20)
+  rating     Float?
+  deskripsi  String?
+  kategoris  KategoriMap[]
+  Manajemens Manajemen[]
+  Pakets     Paket[]
+  Transaksis Transaksi[]
+}
+
+model Manajemen {
+  id         String   @id @default(uuid())
+  ownerId    String
+  cateringId String
+  owner      Owner    @relation(fields: [ownerId], references: [id])
+  catering   Catering @relation(fields: [cateringId], references: [id])
+}
+
+model Kategori {
+  id        String        @id @default(uuid())
+  nama      String
+  kategoris KategoriMap[]
+}
+
+model KategoriMap {
+  id         String   @id @default(uuid())
+  kategoriId String
+  cateringId String
+  kategori   Kategori @relation(fields: [kategoriId], references: [id])
+  catering   Catering @relation(fields: [cateringId], references: [id])
+}
+
+model Paket {
+  id         String      @id @default(uuid())
+  cateringId String
+  catering   Catering    @relation(fields: [cateringId], references: [id])
+  durasi     Int
+  harga      Float
+  deskripsi  String?
+  Schedules  Schedule[]
+  Transaksis Transaksi[]
+}
+
+model Schedule {
+  id            String          @id @default(uuid())
+  paketId       String
+  paket         Paket           @relation(fields: [paketId], references: [id])
+  waktu         String // "siang", "malam", atau "pagi"
+  ScheduleFoods ScheduleFoods[]
+}
+
+model Makanan {
+  id            String          @id @default(uuid())
+  nama          String
+  deskripsi     String?
+  imageUrl      String?
+  ScheduleFoods ScheduleFoods[]
+}
+
+model ScheduleFoods {
+  id         String   @id @default(uuid())
+  makananId  String
+  scheduleId String
+  makanan    Makanan  @relation(fields: [makananId], references: [id])
+  schedule   Schedule @relation(fields: [scheduleId], references: [id])
+}
+
+model Transaksi {
+  id            String   @id @default(uuid())
+  cateringId    String
+  paketId       String
+  catering      Catering @relation(fields: [cateringId], references: [id])
+  paket         Paket    @relation(fields: [paketId], references: [id])
+  ongkir        Float
+  totalHarga    Float
+  tanggal       DateTime
+  paymentMethod String   @db.VarChar(50)
+  Orders        Order[]
+}
+
+model Order {
+  id          String    @id @default(uuid())
+  customerId  String
+  ownerId     String
+  transaksiId String
+  customer    Customer  @relation(fields: [customerId], references: [id])
+  owner       Owner     @relation(fields: [ownerId], references: [id])
+  transaksi   Transaksi @relation(fields: [transaksiId], references: [id])
+  statusOrder String    @db.VarChar(50)
+  startDate   DateTime
+  endDate     DateTime
 }
