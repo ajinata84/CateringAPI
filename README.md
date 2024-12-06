@@ -9,7 +9,7 @@ Catering API is a backend service built with Node.js, Express, and Prisma. It pr
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/ajinata/CateringAPI.git
+   git clone https://github.com/ajinata84/CateringAPI.git
    cd CateringAPI
    ```
 
