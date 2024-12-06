@@ -1,51 +1,16 @@
 /**
  * @swagger
- * /order:
- *   post:
- *     summary: Create a new order
- *     tags: [Order]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               ownerId:
- *                 type: string
- *               transaksiId:
- *                 type: string
- *               statusOrder:
- *                 type: string
- *               startDate:
- *                 type: string
- *                 format: date-time
- *               endDate:
- *                 type: string
- *                 format: date-time
- *     responses:
- *       200:
- *         description: Order created successfully
- *       500:
- *         description: Internal server error
- */
-
-/**
- * @swagger
  * /order/{orderId}:
  *   put:
- *     summary: Update order status
+ *     summary: Update the status of an order
  *     tags: [Order]
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: orderId
  *         required: true
  *         schema:
  *           type: string
+ *         description: The ID of the order to update
  *     requestBody:
  *       required: true
  *       content:
@@ -60,6 +25,19 @@
  *         description: Order status updated successfully
  *       403:
  *         description: You are not authorized to perform this action
+ *       500:
+ *         description: Internal server error
+ */
+
+/**
+ * @swagger
+ * /order:
+ *   get:
+ *     summary: Get all orders for the authenticated user
+ *     tags: [Order]
+ *     responses:
+ *       200:
+ *         description: A list of orders
  *       500:
  *         description: Internal server error
  */

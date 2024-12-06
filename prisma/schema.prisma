@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -27,10 +21,10 @@ model users {
 }
 
 model Customer {
-  id     String  @id @default(uuid())
-  userId String  @unique
-  user   users   @relation(fields: [userId], references: [userId])
-  Orders Order[]
+  id         String      @id @default(uuid())
+  userId     String      @unique
+  user       users       @relation(fields: [userId], references: [userId])
+  Transaksis Transaksi[]
 }
 
 model Owner {
@@ -39,7 +33,6 @@ model Owner {
   user       users       @relation(fields: [userId], references: [userId])
   Caterings  Catering[]
   Manajemens Manajemen[]
-  Orders     Order[]
 }
 
 model Catering {
@@ -54,7 +47,7 @@ model Catering {
   kategoris  KategoriMap[]
   Manajemens Manajemen[]
   Pakets     Paket[]
-  Transaksis Transaksi[]
+  Orders     Order[]
 }
 
 model Manajemen {
@@ -80,14 +73,14 @@ model KategoriMap {
 }
 
 model Paket {
-  id         String      @id @default(uuid())
+  id         String     @id @default(uuid())
   cateringId String
-  catering   Catering    @relation(fields: [cateringId], references: [id])
+  catering   Catering   @relation(fields: [cateringId], references: [id])
   durasi     Int
   harga      Float
   deskripsi  String?
   Schedules  Schedule[]
-  Transaksis Transaksi[]
+  Orders     Order[]
 }
 
 model Schedule {
@@ -115,27 +108,25 @@ model ScheduleFoods {
 }
 
 model Transaksi {
-  id            String   @id @default(uuid())
-  cateringId    String
-  paketId       String
-  catering      Catering @relation(fields: [cateringId], references: [id])
-  paket         Paket    @relation(fields: [paketId], references: [id])
-  ongkir        Float
-  totalHarga    Float
-  tanggal       DateTime
-  paymentMethod String   @db.VarChar(50)
-  Orders        Order[]
+  id         String   @id @default(uuid())
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id])
+  startDate  DateTime
+  endDate    DateTime
+  Orders     Order[]
 }
 
 model Order {
-  id          String    @id @default(uuid())
-  customerId  String
-  ownerId     String
-  transaksiId String
-  customer    Customer  @relation(fields: [customerId], references: [id])
-  owner       Owner     @relation(fields: [ownerId], references: [id])
-  transaksi   Transaksi @relation(fields: [transaksiId], references: [id])
-  statusOrder String    @db.VarChar(50)
-  startDate   DateTime
-  endDate     DateTime
+  id            String    @id @default(uuid())
+  transaksiId   String
+  paketId       String
+  cateringId    String
+  transaksi     Transaksi @relation(fields: [transaksiId], references: [id], map: "Order_Transaksi_fkey")
+  paket         Paket     @relation(fields: [paketId], references: [id], map: "Order_Paket_fkey")
+  catering      Catering  @relation(fields: [cateringId], references: [id], map: "Order_Owner_fkey")
+  ongkir        Float
+  totalHarga    Float
+  tanggal       DateTime
+  paymentMethod String    @db.VarChar(50)
+  statusOrder   String    @db.VarChar(50)
 }

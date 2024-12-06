@@ -37,7 +37,7 @@ export const getCustomerDetails = async (req: CustomRequest, res: Response) => {
       where: { userId },
       include: {
         user: true,
-        Orders: true,
+        Transaksis: true,
       },
     });
 

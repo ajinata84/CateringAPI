@@ -35,7 +35,6 @@ export const getAllCaterings = async (req: Request, res: Response) => {
         kategoris: true,
         Manajemens: true,
         Pakets: true,
-        Transaksis: true,
       },
       where: { alamat: { contains: alamat as string } },
     });
@@ -57,7 +56,6 @@ export const getCateringById = async (req: Request, res: Response) => {
         kategoris: true,
         Manajemens: true,
         Pakets: true,
-        Transaksis: true,
       },
     });
 

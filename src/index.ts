@@ -8,8 +8,7 @@ import customerRoutes from "./routes/Customer";
 import ownerRoutes from "./routes/Owner";
 import cateringRoutes from "./routes/Catering";
 import orderRoutes from "./routes/Order";
-
-import "./swagger/cateringSwagger"; 
+import transaksiRoutes from './routes/Transaksi';
 
 const app = express();
 
@@ -56,6 +55,7 @@ app.use("/customer", customerRoutes);
 app.use("/owner", ownerRoutes);
 app.use("/catering", cateringRoutes);
 app.use("/order", orderRoutes);
+app.use('/transaksi', transaksiRoutes);
 
 
 app.listen(3000, () => {
