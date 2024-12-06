@@ -54,6 +54,7 @@ The API documentation is generated using Swagger. You can access it at `http://l
   - `middleware/`: Contains middleware functions.
   - `models/`: Contains Prisma models.
   - `routes/`: Contains route definitions.
+  - `swagger/`: Contains swagger doccumentation.
   - `index.ts`: The entry point of the application.
 
 ## Scripts
