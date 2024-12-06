@@ -1,12 +1,12 @@
-import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
-import { CustomRequest } from '../middleware/JwtMiddleware';
+import { Request, Response } from "express";
+import { PrismaClient } from "@prisma/client";
+import { CustomRequest } from "../middleware/JwtMiddleware";
 
 const prisma = new PrismaClient();
 
 export const createTransaksi = async (req: CustomRequest, res: Response) => {
   const customerId = req.userId!;
-  const { orders, startDate, endDate } = req.body;
+  const { orders, startDate, endDate, paymentMethod } = req.body;
 
   try {
     // Create a new transaksi
@@ -15,30 +15,38 @@ export const createTransaksi = async (req: CustomRequest, res: Response) => {
         customerId,
         startDate: new Date(startDate),
         endDate: new Date(endDate),
+        paymentMethod,
       },
     });
 
     // Create orders for the transaksi
     const createdOrders = await Promise.all(
-      orders.map(async (order: { paketId: string; cateringId: string; ongkir: number; totalHarga: number; paymentMethod: string; statusOrder: string }) => {
-        return prisma.order.create({
-          data: {
-            transaksiId: transaksi.id,
-            paketId: order.paketId,
-            cateringId: order.cateringId,
-            ongkir: order.ongkir,
-            totalHarga: order.totalHarga,
-            tanggal: new Date(),
-            paymentMethod: order.paymentMethod,
-            statusOrder: order.statusOrder,
-          },
-        });
-      })
+      orders.map(
+        async (order: {
+          paketId: string;
+          cateringId: string;
+          ongkir: number;
+          totalHarga: number;
+          statusOrder: string;
+        }) => {
+          return prisma.order.create({
+            data: {
+              transaksiId: transaksi.id,
+              paketId: order.paketId,
+              cateringId: order.cateringId,
+              ongkir: order.ongkir,
+              totalHarga: order.totalHarga,
+              tanggal: new Date(),
+              statusOrder: order.statusOrder,
+            },
+          });
+        }
+      )
     );
 
     res.json({ transaksi, orders: createdOrders });
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -59,7 +67,7 @@ export const getUserTransaksis = async (req: CustomRequest, res: Response) => {
 
     res.json(transaksis);
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -80,12 +88,12 @@ export const getTransaksiById = async (req: CustomRequest, res: Response) => {
     });
 
     if (!transaksi) {
-      res.status(404).json({ error: 'Transaksi not found' });
+      res.status(404).json({ error: "Transaksi not found" });
       return;
     }
 
     res.json(transaksi);
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: "Internal server error" });
   }
 };

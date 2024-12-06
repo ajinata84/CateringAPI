@@ -24,8 +24,6 @@
  *                       type: number
  *                     totalHarga:
  *                       type: number
- *                     paymentMethod:
- *                       type: string
  *                     statusOrder:
  *                       type: string
  *               startDate:
@@ -34,6 +32,18 @@
  *               endDate:
  *                 type: string
  *                 format: date
+ *               paymentMethod:
+ *                 type: string
+ *           example:
+ *             orders:
+ *               - paketId: "1"
+ *                 cateringId: "1"
+ *                 ongkir: 10000
+ *                 totalHarga: 510000
+ *                 statusOrder: "Pending"
+ *             startDate: "2023-10-01"
+ *             endDate: "2023-10-07"
+ *             paymentMethod: "Credit Card"
  *     responses:
  *       200:
  *         description: Transaksi created successfully
@@ -50,6 +60,22 @@
  *     responses:
  *       200:
  *         description: A list of transaksis
+ *         content:
+ *           application/json:
+ *             example:
+ *               - id: "1"
+ *                 customerId: "123"
+ *                 startDate: "2023-10-01"
+ *                 endDate: "2023-10-07"
+ *                 Orders:
+ *                   - id: "1"
+ *                     statusOrder: "Pending"
+ *                     paket:
+ *                       id: "1"
+ *                       nama: "Paket A"
+ *                       deskripsi: "Deskripsi Paket A"
+ *                       harga: 500000
+ *                 paymentMethod: "Credit Card"
  *       500:
  *         description: Internal server error
  */
@@ -70,6 +96,25 @@
  *     responses:
  *       200:
  *         description: Transaksi retrieved successfully
+ *         content:
+ *           application/json:
+ *             example:
+ *               id: "1"
+ *               customerId: "123"
+ *               startDate: "2023-10-01"
+ *               endDate: "2023-10-07"
+ *               Orders:
+ *                 - id: "1"
+ *                   statusOrder: "Pending"
+ *                   paket:
+ *                     id: "1"
+ *                     nama: "Paket A"
+ *                     deskripsi: "Deskripsi Paket A"
+ *                     harga: 500000
+ *               customer:
+ *                 id: "123"
+ *                 nama: "John Doe"
+ *               paymentMethod: "Credit Card"
  *       404:
  *         description: Transaksi not found
  *       500:

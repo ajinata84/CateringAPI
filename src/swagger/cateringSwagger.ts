@@ -23,6 +23,12 @@
  *                 type: number
  *               deskripsi:
  *                 type: string
+ *           example:
+ *             nama: "Catering A"
+ *             alamat: "Jl. Example No. 1"
+ *             hp: "08123456789"
+ *             rating: 4.5
+ *             deskripsi: "Deskripsi Catering A"
  *     responses:
  *       200:
  *         description: Catering created successfully
@@ -39,6 +45,26 @@
  *     responses:
  *       200:
  *         description: List of all caterings
+ *         content:
+ *           application/json:
+ *             example:
+ *               - id: "1"
+ *                 nama: "Catering A"
+ *                 alamat: "Jl. Example No. 1"
+ *                 hp: "08123456789"
+ *                 rating: 4.5
+ *                 deskripsi: "Deskripsi Catering A"
+ *                 pakets:
+ *                   - id: "1"
+ *                     durasi: 7
+ *                     harga: 500000
+ *                     deskripsi: "Paket mingguan"
+ *                     schedules:
+ *                       - waktu: "12:00"
+ *                         makanan:
+ *                           - nama: "Nasi Goreng"
+ *                             deskripsi: "Nasi goreng dengan ayam"
+ *                             imageUrl: "http://example.com/nasigoreng.jpg"
  *       500:
  *         description: Internal server error
  */
@@ -58,6 +84,26 @@
  *     responses:
  *       200:
  *         description: Catering details
+ *         content:
+ *           application/json:
+ *             example:
+ *               id: "1"
+ *               nama: "Catering A"
+ *               alamat: "Jl. Example No. 1"
+ *               hp: "08123456789"
+ *               rating: 4.5
+ *               deskripsi: "Deskripsi Catering A"
+ *               pakets:
+ *                 - id: "1"
+ *                   durasi: 7
+ *                   harga: 500000
+ *                   deskripsi: "Paket mingguan"
+ *                   schedules:
+ *                     - waktu: "12:00"
+ *                       makanan:
+ *                         - nama: "Nasi Goreng"
+ *                           deskripsi: "Nasi goreng dengan ayam"
+ *                           imageUrl: "http://example.com/nasigoreng.jpg"
  *       404:
  *         description: Catering not found
  *       500:
@@ -95,6 +141,12 @@
  *                 type: number
  *               deskripsi:
  *                 type: string
+ *           example:
+ *             nama: "Catering A"
+ *             alamat: "Jl. Example No. 1"
+ *             hp: "08123456789"
+ *             rating: 4.5
+ *             deskripsi: "Deskripsi Catering A"
  *     responses:
  *       200:
  *         description: Catering updated successfully
@@ -159,6 +211,13 @@
  *                       type: string
  *                     imageUrl:
  *                       type: string
+ *           example:
+ *             paketId: "1"
+ *             waktu: "12:00"
+ *             makanan:
+ *               - nama: "Nasi Goreng"
+ *                 deskripsi: "Nasi goreng dengan ayam"
+ *                 imageUrl: "http://example.com/nasigoreng.jpg"
  *     responses:
  *       200:
  *         description: Schedule and Food added successfully
@@ -211,6 +270,16 @@
  *                             type: string
  *                           imageUrl:
  *                             type: string
+ *           example:
+ *             durasi: 7
+ *             harga: 500000
+ *             deskripsi: "Paket mingguan"
+ *             schedules:
+ *               - waktu: "12:00"
+ *                 makanan:
+ *                   - nama: "Nasi Goreng"
+ *                     deskripsi: "Nasi goreng dengan ayam"
+ *                     imageUrl: "http://example.com/nasigoreng.jpg"
  *     responses:
  *       200:
  *         description: Paket and Schedules added successfully
@@ -233,6 +302,26 @@
  *     responses:
  *       200:
  *         description: List of search results
+ *         content:
+ *           application/json:
+ *             example:
+ *               - id: "1"
+ *                 nama: "Catering A"
+ *                 alamat: "Jl. Example No. 1"
+ *                 hp: "08123456789"
+ *                 rating: 4.5
+ *                 deskripsi: "Deskripsi Catering A"
+ *                 pakets:
+ *                   - id: "1"
+ *                     durasi: 7
+ *                     harga: 500000
+ *                     deskripsi: "Paket mingguan"
+ *                     schedules:
+ *                       - waktu: "12:00"
+ *                         makanan:
+ *                           - nama: "Nasi Goreng"
+ *                             deskripsi: "Nasi goreng dengan ayam"
+ *                             imageUrl: "http://example.com/nasigoreng.jpg"
  *       400:
  *         description: Query parameter is required
  *       500:

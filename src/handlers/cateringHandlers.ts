@@ -1,6 +1,6 @@
-import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
-import { CustomRequest } from '../middleware/JwtMiddleware';
+import { Request, Response } from "express";
+import { PrismaClient } from "@prisma/client";
+import { CustomRequest } from "../middleware/JwtMiddleware";
 
 const prisma = new PrismaClient();
 
@@ -22,7 +22,7 @@ export const createCatering = async (req: CustomRequest, res: Response) => {
 
     res.json(catering);
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -41,7 +41,7 @@ export const getAllCaterings = async (req: Request, res: Response) => {
 
     res.json(caterings);
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -60,13 +60,13 @@ export const getCateringById = async (req: Request, res: Response) => {
     });
 
     if (!catering) {
-      res.status(404).json({ error: 'Catering not found' });
+      res.status(404).json({ error: "Catering not found" });
       return;
     }
 
     res.json(catering);
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -88,7 +88,7 @@ export const updateCatering = async (req: CustomRequest, res: Response) => {
 
     res.json(catering);
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -100,9 +100,9 @@ export const deleteCatering = async (req: CustomRequest, res: Response) => {
       where: { id: cateringId },
     });
 
-    res.json({ message: 'Catering deleted successfully' });
+    res.json({ message: "Catering deleted successfully" });
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -119,31 +119,40 @@ export const addScheduleAndFood = async (req: CustomRequest, res: Response) => {
     });
 
     const scheduleFoods = await Promise.all(
-      makanan.map(async (makananItem: { nama: string; deskripsi?: string; imageUrl?: string }) => {
-        const food = await prisma.makanan.create({
-          data: {
-            nama: makananItem.nama,
-            deskripsi: makananItem.deskripsi,
-            imageUrl: makananItem.imageUrl,
-          },
-        });
+      makanan.map(
+        async (makananItem: {
+          nama: string;
+          deskripsi?: string;
+          imageUrl?: string;
+        }) => {
+          const food = await prisma.makanan.create({
+            data: {
+              nama: makananItem.nama,
+              deskripsi: makananItem.deskripsi,
+              imageUrl: makananItem.imageUrl,
+            },
+          });
 
-        return prisma.scheduleFoods.create({
-          data: {
-            scheduleId: schedule.id,
-            makananId: food.id,
-          },
-        });
-      })
+          return prisma.scheduleFoods.create({
+            data: {
+              scheduleId: schedule.id,
+              makananId: food.id,
+            },
+          });
+        }
+      )
     );
 
     res.json({ schedule, scheduleFoods });
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
-export const addPaketWithSchedules = async (req: CustomRequest, res: Response) => {
+export const addPaketWithSchedules = async (
+  req: CustomRequest,
+  res: Response
+) => {
   const { cateringId } = req.params;
   const { durasi, harga, deskripsi, schedules } = req.body;
 
@@ -158,40 +167,45 @@ export const addPaketWithSchedules = async (req: CustomRequest, res: Response) =
     });
 
     const createdSchedules = await Promise.all(
-      schedules.map(async (scheduleItem: { waktu: string; makanan: { nama: string; deskripsi?: string; imageUrl?: string }[] }) => {
-        const schedule = await prisma.schedule.create({
-          data: {
-            paketId: paket.id,
-            waktu: scheduleItem.waktu,
-          },
-        });
+      schedules.map(
+        async (scheduleItem: {
+          waktu: string;
+          makanan: { nama: string; deskripsi?: string; imageUrl?: string }[];
+        }) => {
+          const schedule = await prisma.schedule.create({
+            data: {
+              paketId: paket.id,
+              waktu: scheduleItem.waktu,
+            },
+          });
 
-        const scheduleFoods = await Promise.all(
-          scheduleItem.makanan.map(async (makananItem) => {
-            const food = await prisma.makanan.create({
-              data: {
-                nama: makananItem.nama,
-                deskripsi: makananItem.deskripsi,
-                imageUrl: makananItem.imageUrl,
-              },
-            });
+          const scheduleFoods = await Promise.all(
+            scheduleItem.makanan.map(async (makananItem) => {
+              const food = await prisma.makanan.create({
+                data: {
+                  nama: makananItem.nama,
+                  deskripsi: makananItem.deskripsi,
+                  imageUrl: makananItem.imageUrl,
+                },
+              });
 
-            return prisma.scheduleFoods.create({
-              data: {
-                scheduleId: schedule.id,
-                makananId: food.id,
-              },
-            });
-          })
-        );
+              return prisma.scheduleFoods.create({
+                data: {
+                  scheduleId: schedule.id,
+                  makananId: food.id,
+                },
+              });
+            })
+          );
 
-        return { schedule, scheduleFoods };
-      })
+          return { schedule, scheduleFoods };
+        }
+      )
     );
 
     res.json({ paket, schedules: createdSchedules });
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -200,7 +214,7 @@ export const searchCatering = async (req: Request, res: Response) => {
   const { alamat } = req.body;
 
   if (!query) {
-    res.status(400).json({ error: 'Query parameter is required' });
+    res.status(400).json({ error: "Query parameter is required" });
     return;
   }
 
@@ -247,13 +261,11 @@ export const searchCatering = async (req: Request, res: Response) => {
           },
         },
         Pakets: {
-          include: {
+          where: {
             Schedules: {
-              include: {
+              some: {
                 ScheduleFoods: {
-                  include: {
-                    makanan: true,
-                  },
+                  some: { makanan: { nama: { contains: query as string } } },
                 },
               },
             },
@@ -264,6 +276,6 @@ export const searchCatering = async (req: Request, res: Response) => {
 
     res.json(caterings);
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: "Internal server error" });
   }
 };

@@ -29,6 +29,11 @@ export const getUserOrders = async (req: CustomRequest, res: Response) => {
       include: {
         Orders: {
           include: {
+            catering: {
+              select: {
+                nama: true,
+              },
+            },
             paket: true,
           },
         },

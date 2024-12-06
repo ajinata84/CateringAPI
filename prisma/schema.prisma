@@ -108,25 +108,25 @@ model ScheduleFoods {
 }
 
 model Transaksi {
-  id         String   @id @default(uuid())
-  customerId String
-  customer   Customer @relation(fields: [customerId], references: [id])
-  startDate  DateTime
-  endDate    DateTime
-  Orders     Order[]
+  id            String   @id @default(uuid())
+  customerId    String
+  customer      Customer @relation(fields: [customerId], references: [id])
+  startDate     DateTime
+  endDate       DateTime
+  Orders        Order[]
+  paymentMethod String   @db.VarChar(50)
 }
 
 model Order {
-  id            String    @id @default(uuid())
-  transaksiId   String
-  paketId       String
-  cateringId    String
-  transaksi     Transaksi @relation(fields: [transaksiId], references: [id], map: "Order_Transaksi_fkey")
-  paket         Paket     @relation(fields: [paketId], references: [id], map: "Order_Paket_fkey")
-  catering      Catering  @relation(fields: [cateringId], references: [id], map: "Order_Owner_fkey")
-  ongkir        Float
-  totalHarga    Float
-  tanggal       DateTime
-  paymentMethod String    @db.VarChar(50)
-  statusOrder   String    @db.VarChar(50)
+  id          String    @id @default(uuid())
+  transaksiId String
+  paketId     String
+  cateringId  String
+  transaksi   Transaksi @relation(fields: [transaksiId], references: [id], map: "Order_Transaksi_fkey")
+  paket       Paket     @relation(fields: [paketId], references: [id], map: "Order_Paket_fkey")
+  catering    Catering  @relation(fields: [cateringId], references: [id], map: "Order_Owner_fkey")
+  ongkir      Float
+  totalHarga  Float
+  tanggal     DateTime
+  statusOrder String    @db.VarChar(50)
 }
