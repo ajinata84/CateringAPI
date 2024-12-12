@@ -5,10 +5,11 @@ import {
   getUserTransaksis,
   getTransaksiById,
 } from "../handlers/transaksiHandlers";
+import { userMiddleware } from "../middleware/UserMiddleware";
 
 const router = express.Router();
 
-router.post("/", jwtMiddleware, createTransaksi);
+router.post("/", userMiddleware, createTransaksi);
 router.get("/", jwtMiddleware, getUserTransaksis);
 router.get("/:transaksiId", jwtMiddleware, getTransaksiById);
 

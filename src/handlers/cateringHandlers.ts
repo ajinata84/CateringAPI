@@ -1,11 +1,12 @@
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import { CustomRequest } from "../middleware/JwtMiddleware";
+import { UserRequest } from "../middleware/UserMiddleware";
 
 const prisma = new PrismaClient();
 
-export const createCatering = async (req: CustomRequest, res: Response) => {
-  const ownerId = req.userId!;
+export const createCatering = async (req: UserRequest, res: Response) => {
+  const ownerId = req.ownerId!;
   const { nama, alamat, hp, rating, deskripsi } = req.body;
 
   try {
@@ -107,7 +108,6 @@ export const deleteCatering = async (req: CustomRequest, res: Response) => {
 };
 
 export const addScheduleAndFood = async (req: CustomRequest, res: Response) => {
-  const { cateringId } = req.params;
   const { paketId, waktu, makanan } = req.body;
 
   try {
@@ -154,11 +154,12 @@ export const addPaketWithSchedules = async (
   res: Response
 ) => {
   const { cateringId } = req.params;
-  const { durasi, harga, deskripsi, schedules } = req.body;
+  const { durasi, harga, deskripsi, schedules, namaPaket } = req.body;
 
   try {
     const paket = await prisma.paket.create({
       data: {
+        nama: namaPaket,
         cateringId,
         durasi,
         harga,
@@ -221,51 +222,73 @@ export const searchCatering = async (req: Request, res: Response) => {
   try {
     const caterings = await prisma.catering.findMany({
       where: {
-        OR: [
-          { alamat: { contains: alamat as string } },
-          { nama: { contains: query as string } },
-          { deskripsi: { contains: query as string } },
+        AND: [
+          // Filter by alamat if provided
+          alamat ? { alamat: { contains: alamat } } : {},
           {
-            kategoris: {
-              some: {
-                kategori: {
-                  nama: { contains: query as string },
+            OR: [
+              // Search in catering details
+              { nama: { contains: query as string } },
+              { deskripsi: { contains: query as string } },
+              { alamat: { contains: query as string } },
+
+              // Search in kategori
+              {
+                kategoris: {
+                  some: {
+                    kategori: {
+                      nama: { contains: query as string },
+                    },
+                  },
                 },
               },
-            },
-          },
-          {
-            Pakets: {
-              some: {
-                Schedules: {
+
+              // Search in paket names
+              {
+                Pakets: {
                   some: {
-                    ScheduleFoods: {
+                    nama: { contains: query as string },
+                  },
+                },
+              },
+
+              // Search in makanan names
+              {
+                Pakets: {
+                  some: {
+                    Schedules: {
                       some: {
-                        makanan: {
-                          nama: { contains: query as string },
+                        ScheduleFoods: {
+                          some: {
+                            makanan: {
+                              nama: { contains: query as string },
+                            },
+                          },
                         },
                       },
                     },
                   },
                 },
               },
-            },
+            ],
           },
         ],
       },
       include: {
-        owner: true,
+        owner: false,
         kategoris: {
           include: {
             kategori: true,
           },
         },
         Pakets: {
-          where: {
+          include: {
             Schedules: {
-              some: {
+              include: {
                 ScheduleFoods: {
-                  some: { makanan: { nama: { contains: query as string } } },
+                  include: {
+                    makanan: true,
+                  },
                 },
               },
             },
@@ -276,6 +299,7 @@ export const searchCatering = async (req: Request, res: Response) => {
 
     res.json(caterings);
   } catch (error) {
+    console.error("Search error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };

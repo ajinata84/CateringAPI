@@ -24,19 +24,17 @@ export const getUserOrders = async (req: CustomRequest, res: Response) => {
   const userId = req.userId!;
 
   try {
-    const transaksis = await prisma.transaksi.findMany({
-      where: { customerId: userId },
+    const transaksis = await prisma.order.findMany({
+      where: {
+        OR: [
+          { transaksi: { customer: { userId } } },
+          { catering: { owner: { userId } } },
+        ],
+      },
       include: {
-        Orders: {
-          include: {
-            catering: {
-              select: {
-                nama: true,
-              },
-            },
-            paket: true,
-          },
-        },
+        paket: true,
+        catering: true,
+        transaksi: true,
       },
     });
 

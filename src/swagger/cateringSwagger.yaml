@@ -225,6 +225,8 @@ paths:
             schema:
               type: object
               properties:
+                namaPaket:
+                  type: string
                 durasi:
                   type: number
                 harga:
@@ -250,6 +252,7 @@ paths:
                             imageUrl:
                               type: string
             example:
+              namaPaket: "Paket Kenyang Gembira "
               durasi: 7
               harga: 500000
               deskripsi: "Paket mingguan"
@@ -265,7 +268,7 @@ paths:
         500:
           description: Internal server error
   /catering/search:
-    get:
+    post:
       summary: Search for Catering, Makanan, or Kategori
       tags:
         - Catering
@@ -275,6 +278,18 @@ paths:
           required: true
           schema:
             type: string
+            parameters:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                alamat:
+                  type: string
+            example:
+              alamat: "Jl. Example No. 1"      
       responses:
         200:
           description: List of search results

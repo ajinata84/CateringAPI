@@ -74,6 +74,7 @@ model KategoriMap {
 
 model Paket {
   id         String     @id @default(uuid())
+  nama       String
   cateringId String
   catering   Catering   @relation(fields: [cateringId], references: [id])
   durasi     Int

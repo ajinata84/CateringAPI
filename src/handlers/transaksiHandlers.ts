@@ -1,15 +1,31 @@
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import { CustomRequest } from "../middleware/JwtMiddleware";
+import { UserRequest } from "../middleware/UserMiddleware";
 
 const prisma = new PrismaClient();
 
-export const createTransaksi = async (req: CustomRequest, res: Response) => {
-  const customerId = req.userId!;
-  const { orders, startDate, endDate, paymentMethod } = req.body;
-
+export const createTransaksi = async (
+  req: UserRequest,
+  res: Response
+): Promise<void> => {
   try {
-    // Create a new transaksi
+    const { orders, startDate, endDate, paymentMethod } = req.body;
+    const customerId = req.customerId;
+
+    console.log(customerId);
+
+    if (
+      !orders?.length ||
+      !startDate ||
+      !endDate ||
+      !paymentMethod ||
+      !customerId
+    ) {
+      res.status(400).json({ error: "Missing required fields" });
+      return;
+    }
+
     const transaksi = await prisma.transaksi.create({
       data: {
         customerId,
@@ -19,46 +35,63 @@ export const createTransaksi = async (req: CustomRequest, res: Response) => {
       },
     });
 
-    // Create orders for the transaksi
     const createdOrders = await Promise.all(
       orders.map(
         async (order: {
           paketId: string;
           cateringId: string;
           ongkir: number;
-          totalHarga: number;
-          statusOrder: string;
         }) => {
+          const paket = await prisma.paket.findUnique({
+            where: { id: order.paketId },
+          });
+
+          if (!paket) {
+            throw new Error(`Paket with id ${order.paketId} not found`);
+          }
+
           return prisma.order.create({
             data: {
               transaksiId: transaksi.id,
               paketId: order.paketId,
               cateringId: order.cateringId,
-              ongkir: order.ongkir,
-              totalHarga: order.totalHarga,
+              ongkir: Number(order.ongkir),
+              totalHarga: Number(paket.harga) + Number(order.ongkir),
               tanggal: new Date(),
-              statusOrder: order.statusOrder,
+              statusOrder: "PENDING",
             },
           });
         }
       )
     );
 
-    res.json({ transaksi, orders: createdOrders });
+    res.status(201).json({
+      transaksi,
+      orders: createdOrders,
+    });
   } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
+    console.error("Transaction creation error:", error);
+    res.status(500).json({
+      error: "Failed to create transaction",
+      details: error instanceof Error ? error.message : "Unknown error",
+    });
   }
 };
 
-export const getUserTransaksis = async (req: CustomRequest, res: Response) => {
+export const getUserTransaksis = async (req: UserRequest, res: Response) => {
   const userId = req.userId!;
 
   try {
     const transaksis = await prisma.transaksi.findMany({
-      where: { customerId: userId },
+      where: { customer: { userId: userId } },
       include: {
         Orders: {
           include: {
+            catering: {
+              select: {
+                nama: true,
+              },
+            },
             paket: true,
           },
         },
