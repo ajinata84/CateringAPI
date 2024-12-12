@@ -2,16 +2,27 @@ paths:
   /customer/register:
     post:
       summary: Register a new Customer
-      tags: 
+      tags:
         - Customer
-      security:
-        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+                username:
+                  type: string
       responses:
-        '200':
+        200:
           description: Customer registered successfully
-        '400':
-          description: Customer already exists
-        '500':
+        400:
+          description: Invalid input
+        500:
           description: Internal server error
   /customer/me:
     get:
