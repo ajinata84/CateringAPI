@@ -35,7 +35,19 @@ export const getAllCaterings = async (req: Request, res: Response) => {
         owner: true,
         kategoris: true,
         Manajemens: true,
-        Pakets: true,
+        Pakets: {
+          include: {
+            Schedules: {
+              include: {
+                ScheduleFoods: {
+                  include: {
+                    makanan: true,
+                  },
+                },
+              },
+            },
+          },
+        },
       },
       where: { alamat: { contains: alamat as string } },
     });
@@ -56,7 +68,19 @@ export const getCateringById = async (req: Request, res: Response) => {
         owner: true,
         kategoris: true,
         Manajemens: true,
-        Pakets: true,
+        Pakets: {
+          include: {
+            Schedules: {
+              include: {
+                ScheduleFoods: {
+                  include: {
+                    makanan: true,
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     });
 
