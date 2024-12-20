@@ -23,7 +23,7 @@ export const createCatering = async (req: UserRequest, res: Response) => {
 
     res.json(catering);
   } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: error });
   }
 };
 
@@ -54,7 +54,7 @@ export const getAllCaterings = async (req: Request, res: Response) => {
 
     res.json(caterings);
   } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: error });
   }
 };
 
@@ -91,7 +91,7 @@ export const getCateringById = async (req: Request, res: Response) => {
 
     res.json(catering);
   } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: error });
   }
 };
 
@@ -113,7 +113,49 @@ export const updateCatering = async (req: CustomRequest, res: Response) => {
 
     res.json(catering);
   } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: error });
+  }
+};
+
+export const deletePaket = async (req: CustomRequest, res: Response) => {
+  const { paketId } = req.params;
+  try {
+    const makananIds = await prisma.makanan.findMany({
+      where: {
+        ScheduleFoods: {
+          some: {
+            schedule: {
+              paketId,
+            },
+          },
+        },
+      },
+      select: { id: true },
+    });
+
+    await prisma.scheduleFoods.deleteMany({
+      where: { schedule: { paketId } },
+    });
+
+    await prisma.schedule.deleteMany({
+      where: { paketId },
+    });
+
+    await prisma.makanan.deleteMany({
+      where: {
+        id: {
+          in: makananIds.map((m) => m.id),
+        },
+      },
+    });
+
+    await prisma.paket.delete({
+      where: { id: paketId },
+    });
+
+    res.json({ message: "Paket and associated data deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error });
   }
 };
 
@@ -127,7 +169,7 @@ export const deleteCatering = async (req: CustomRequest, res: Response) => {
 
     res.json({ message: "Catering deleted successfully" });
   } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: error });
   }
 };
 
@@ -169,7 +211,7 @@ export const addScheduleAndFood = async (req: CustomRequest, res: Response) => {
 
     res.json({ schedule, scheduleFoods });
   } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: error });
   }
 };
 
@@ -230,7 +272,7 @@ export const addPaketWithSchedules = async (
 
     res.json({ paket, schedules: createdSchedules });
   } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: error });
   }
 };
 
@@ -324,6 +366,6 @@ export const searchCatering = async (req: Request, res: Response) => {
     res.json(caterings);
   } catch (error) {
     console.error("Search error:", error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: error });
   }
 };

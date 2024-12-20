@@ -10,6 +10,7 @@ import {
   addScheduleAndFood,
   addPaketWithSchedules,
   searchCatering,
+  deletePaket,
 } from '../handlers/cateringHandlers';
 import { userMiddleware } from '../middleware/UserMiddleware';
 
@@ -23,5 +24,7 @@ router.delete('/:cateringId', jwtMiddleware, isOwnerMiddleware, deleteCatering);
 router.post('/:cateringId/schedules', jwtMiddleware, isOwnerMiddleware, addScheduleAndFood);
 router.post('/:cateringId/pakets', jwtMiddleware, isOwnerMiddleware, addPaketWithSchedules);
 router.post('/search', searchCatering);
+router.delete('/deletepaket/:paketId', deletePaket);
+
 
 export default router;

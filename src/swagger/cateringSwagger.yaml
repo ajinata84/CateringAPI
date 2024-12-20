@@ -317,3 +317,23 @@ paths:
           description: Query parameter is required
         500:
           description: Internal server error
+  /catering/deletepaket/{paketId}:
+    delete:
+      summary: Delete Paket from Catering
+      tags:
+        - Catering
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: paketId
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Paket deleted successfully
+        404:
+          description: Paket not found
+        500:
+          description: Internal server error
