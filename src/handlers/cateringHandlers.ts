@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 
 export const createCatering = async (req: UserRequest, res: Response) => {
   const ownerId = req.ownerId!;
-  const { nama, alamat, hp, rating, deskripsi } = req.body;
+  const { nama, alamat, hp, rating, deskripsi, imageUrl } = req.body;
 
   try {
     const catering = await prisma.catering.create({
@@ -18,6 +18,7 @@ export const createCatering = async (req: UserRequest, res: Response) => {
         hp,
         rating,
         deskripsi,
+        imageUrl,
       },
     });
 

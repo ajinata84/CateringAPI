@@ -61,6 +61,8 @@ paths:
                   type: string
                 alamat:
                   type: string
+                img:
+                  type: string
       responses:
         '200':
           description: Customer details updated successfully

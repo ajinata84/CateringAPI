@@ -101,7 +101,7 @@ export const updateCustomerDetails = async (
   res: Response
 ) => {
   const userId = req.userId!;
-  const { username, email, password, hp, alamat } = req.body;
+  const { username, email, password, hp, alamat, img } = req.body;
 
   try {
     const updatedUser = await prisma.users.update({
@@ -112,6 +112,7 @@ export const updateCustomerDetails = async (
         password: password ? await argon2.hash(password) : undefined,
         hp,
         alamat,
+        img
       },
     });
 

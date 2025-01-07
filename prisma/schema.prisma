@@ -8,16 +8,16 @@ datasource db {
 }
 
 model users {
-  userId     String   @id @default(uuid())
-  created_at DateTime @default(now()) @db.Timestamp(0)
-  username   String   @db.VarChar(20)
-  email      String   @unique @db.VarChar(255)
-  password   String   @db.VarChar(255)
-  hp         String?  @db.VarChar(20)
+  userId     String    @id @default(uuid())
+  created_at DateTime  @default(now()) @db.Timestamp(0)
+  username   String    @db.VarChar(20)
+  email      String    @unique @db.VarChar(255)
+  password   String    @db.VarChar(255)
+  hp         String?   @db.VarChar(20)
   alamat     String?
-
-  Customer Customer?
-  Owner    Owner?
+  img        String?   @db.VarChar(255)
+  Customer   Customer?
+  Owner      Owner?
 }
 
 model Customer {
@@ -30,32 +30,38 @@ model Customer {
 model Owner {
   id         String      @id @default(uuid())
   userId     String      @unique
-  user       users       @relation(fields: [userId], references: [userId])
   Caterings  Catering[]
   Manajemens Manajemen[]
+  user       users       @relation(fields: [userId], references: [userId])
 }
 
 model Catering {
   id         String        @id @default(uuid())
   ownerId    String
-  owner      Owner         @relation(fields: [ownerId], references: [id])
   nama       String
   alamat     String?
   hp         String?       @db.VarChar(20)
   rating     Float?
   deskripsi  String?
+  imageUrl   String?
+  owner      Owner         @relation(fields: [ownerId], references: [id])
   kategoris  KategoriMap[]
   Manajemens Manajemen[]
-  Pakets     Paket[]
   Orders     Order[]
+  Pakets     Paket[]
+
+  @@index([ownerId], map: "Catering_ownerId_fkey")
 }
 
 model Manajemen {
   id         String   @id @default(uuid())
   ownerId    String
   cateringId String
-  owner      Owner    @relation(fields: [ownerId], references: [id])
   catering   Catering @relation(fields: [cateringId], references: [id])
+  owner      Owner    @relation(fields: [ownerId], references: [id])
+
+  @@index([cateringId], map: "Manajemen_cateringId_fkey")
+  @@index([ownerId], map: "Manajemen_ownerId_fkey")
 }
 
 model Kategori {
@@ -68,28 +74,35 @@ model KategoriMap {
   id         String   @id @default(uuid())
   kategoriId String
   cateringId String
-  kategori   Kategori @relation(fields: [kategoriId], references: [id])
   catering   Catering @relation(fields: [cateringId], references: [id])
+  kategori   Kategori @relation(fields: [kategoriId], references: [id])
+
+  @@index([cateringId], map: "KategoriMap_cateringId_fkey")
+  @@index([kategoriId], map: "KategoriMap_kategoriId_fkey")
 }
 
 model Paket {
   id         String     @id @default(uuid())
   nama       String
   cateringId String
-  catering   Catering   @relation(fields: [cateringId], references: [id])
   durasi     Int
   harga      Float
   deskripsi  String?
-  Schedules  Schedule[]
   Orders     Order[]
+  catering   Catering   @relation(fields: [cateringId], references: [id])
+  Schedules  Schedule[]
+
+  @@index([cateringId], map: "Paket_cateringId_fkey")
 }
 
 model Schedule {
   id            String          @id @default(uuid())
   paketId       String
+  waktu         String
   paket         Paket           @relation(fields: [paketId], references: [id])
-  waktu         String // "siang", "malam", atau "pagi"
   ScheduleFoods ScheduleFoods[]
+
+  @@index([paketId], map: "Schedule_paketId_fkey")
 }
 
 model Makanan {
@@ -106,16 +119,21 @@ model ScheduleFoods {
   scheduleId String
   makanan    Makanan  @relation(fields: [makananId], references: [id])
   schedule   Schedule @relation(fields: [scheduleId], references: [id])
+
+  @@index([makananId], map: "ScheduleFoods_makananId_fkey")
+  @@index([scheduleId], map: "ScheduleFoods_scheduleId_fkey")
 }
 
 model Transaksi {
   id            String   @id @default(uuid())
   customerId    String
-  customer      Customer @relation(fields: [customerId], references: [id])
   startDate     DateTime
   endDate       DateTime
-  Orders        Order[]
   paymentMethod String   @db.VarChar(50)
+  Orders        Order[]
+  customer      Customer @relation(fields: [customerId], references: [id])
+
+  @@index([customerId], map: "Transaksi_customerId_fkey")
 }
 
 model Order {
@@ -123,11 +141,15 @@ model Order {
   transaksiId String
   paketId     String
   cateringId  String
-  transaksi   Transaksi @relation(fields: [transaksiId], references: [id], map: "Order_Transaksi_fkey")
-  paket       Paket     @relation(fields: [paketId], references: [id], map: "Order_Paket_fkey")
-  catering    Catering  @relation(fields: [cateringId], references: [id], map: "Order_Owner_fkey")
   ongkir      Float
   totalHarga  Float
   tanggal     DateTime
   statusOrder String    @db.VarChar(50)
+  catering    Catering  @relation(fields: [cateringId], references: [id], map: "Order_Owner_fkey")
+  paket       Paket     @relation(fields: [paketId], references: [id], map: "Order_Paket_fkey")
+  transaksi   Transaksi @relation(fields: [transaksiId], references: [id], map: "Order_Transaksi_fkey")
+
+  @@index([cateringId], map: "Order_Owner_fkey")
+  @@index([paketId], map: "Order_Paket_fkey")
+  @@index([transaksiId], map: "Order_Transaksi_fkey")
 }

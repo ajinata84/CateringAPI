@@ -23,6 +23,8 @@ paths:
                   type: number
                 deskripsi:
                   type: string
+                imageUrl:
+                  type: string
             example:
               nama: "Catering A"
               alamat: "Jl. Example No. 1"
