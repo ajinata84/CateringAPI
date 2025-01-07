@@ -161,6 +161,37 @@ paths:
           description: Catering deleted successfully
         500:
           description: Internal server error
+  /catering/paket/{paketId}:
+    get:
+      summary: Get Paket details by ID
+      tags:
+        - Catering
+      parameters:
+        - in: path
+          name: paketId
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Paket details
+          content:
+            application/json:
+              example:
+                id: "1"
+                durasi: 7
+                harga: 500000
+                deskripsi: "Paket mingguan"
+                schedules:
+                  - waktu: "12:00"
+                    makanan:
+                      - nama: "Nasi Goreng"
+                        deskripsi: "Nasi goreng dengan ayam"
+                        imageUrl: "http://example.com/nasigoreng.jpg"
+        404:
+          description: Paket not found
+        500:
+          description: Internal server error
   /catering/{cateringId}/schedules:
     post:
       summary: Add Schedule and Food to Catering

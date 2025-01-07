@@ -18,7 +18,7 @@ export const createCatering = async (req: UserRequest, res: Response) => {
         hp,
         rating,
         deskripsi,
-        imageUrl
+        imageUrl,
       },
     });
 
@@ -78,6 +78,36 @@ export const getCateringById = async (req: Request, res: Response) => {
                     makanan: true,
                   },
                 },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!catering) {
+      res.status(404).json({ error: "Catering not found" });
+      return;
+    }
+
+    res.json(catering);
+  } catch (error) {
+    res.status(500).json({ error: error });
+  }
+};
+
+export const getPaketById = async (req: Request, res: Response) => {
+  const { paketId } = req.params;
+
+  try {
+    const catering = await prisma.paket.findUnique({
+      where: { id: paketId },
+      include: {
+        Schedules: {
+          include: {
+            ScheduleFoods: {
+              include: {
+                makanan: true,
               },
             },
           },
