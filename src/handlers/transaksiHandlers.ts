@@ -10,18 +10,10 @@ export const createTransaksi = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { orders, startDate, endDate, paymentMethod } = req.body;
+    const { orders, startDate, alamat, paymentMethod } = req.body;
     const customerId = req.customerId;
 
-    console.log(customerId);
-
-    if (
-      !orders?.length ||
-      !startDate ||
-      !endDate ||
-      !paymentMethod ||
-      !customerId
-    ) {
+    if (!orders?.length || !startDate || !paymentMethod || !customerId) {
       res.status(400).json({ error: "Missing required fields" });
       return;
     }
@@ -30,43 +22,56 @@ export const createTransaksi = async (
       data: {
         customerId,
         startDate: new Date(startDate),
-        endDate: new Date(endDate),
+        endDate: new Date(), // temp date
         paymentMethod,
+        alamat,
+        ongkir: 15000,
       },
     });
 
+    let totalDuration = 0;
+
     const createdOrders = await Promise.all(
-      orders.map(
-        async (order: {
-          paketId: string;
-          cateringId: string;
-          ongkir: number;
-        }) => {
-          const paket = await prisma.paket.findUnique({
-            where: { id: order.paketId },
-          });
+      orders.map(async (order: { paketId: string; qty: number }) => {
+        const catering = await prisma.catering.findFirst({
+          where: { Pakets: { some: { id: order.paketId } } },
+        });
 
-          if (!paket) {
-            throw new Error(`Paket with id ${order.paketId} not found`);
-          }
+        const paket = await prisma.paket.findUnique({
+          where: { id: order.paketId },
+        });
 
-          return prisma.order.create({
-            data: {
-              transaksiId: transaksi.id,
-              paketId: order.paketId,
-              cateringId: order.cateringId,
-              ongkir: Number(order.ongkir),
-              totalHarga: Number(paket.harga) + Number(order.ongkir),
-              tanggal: new Date(),
-              statusOrder: "PENDING",
-            },
-          });
+        if (!paket) {
+          throw new Error(`Paket with id ${order.paketId} not found`);
         }
-      )
+
+        totalDuration = Math.max(totalDuration, paket.durasi * order.qty);
+
+        return prisma.order.create({
+          data: {
+            transaksiId: transaksi.id,
+            paketId: order.paketId,
+            cateringId: catering!.id,
+            totalHarga: Number(paket.harga),
+            tanggal: new Date(startDate),
+            statusOrder: "PENDING",
+            durasi: totalDuration,
+          },
+        });
+      })
     );
 
+    const updatedTransaksi = await prisma.transaksi.update({
+      where: { id: transaksi.id },
+      data: {
+        endDate: new Date(
+          new Date(startDate).getTime() + totalDuration * 24 * 60 * 60 * 1000
+        ),
+      },
+    });
+
     res.status(201).json({
-      transaksi,
+      updatedTransaksi,
       orders: createdOrders,
     });
   } catch (error) {

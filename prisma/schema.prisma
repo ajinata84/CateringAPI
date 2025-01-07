@@ -130,6 +130,8 @@ model Transaksi {
   startDate     DateTime
   endDate       DateTime
   paymentMethod String   @db.VarChar(50)
+  alamat        String
+  ongkir        Float
   Orders        Order[]
   customer      Customer @relation(fields: [customerId], references: [id])
 
@@ -141,9 +143,9 @@ model Order {
   transaksiId String
   paketId     String
   cateringId  String
-  ongkir      Float
   totalHarga  Float
   tanggal     DateTime
+  durasi      Int
   statusOrder String    @db.VarChar(50)
   catering    Catering  @relation(fields: [cateringId], references: [id], map: "Order_Owner_fkey")
   paket       Paket     @relation(fields: [paketId], references: [id], map: "Order_Paket_fkey")
