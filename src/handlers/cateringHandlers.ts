@@ -18,7 +18,7 @@ export const createCatering = async (req: UserRequest, res: Response) => {
         hp,
         rating,
         deskripsi,
-        imageUrl,
+        imageUrl
       },
     });
 
