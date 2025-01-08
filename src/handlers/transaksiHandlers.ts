@@ -56,6 +56,7 @@ export const createTransaksi = async (
             tanggal: new Date(startDate),
             statusOrder: "PENDING",
             durasi: totalDuration,
+            quantity: order.qty,
           },
         });
       })

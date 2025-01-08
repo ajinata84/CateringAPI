@@ -71,6 +71,7 @@ export const getCateringById = async (req: Request, res: Response) => {
         Manajemens: true,
         Pakets: {
           include: {
+            Kategori: { select: { nama: true } },
             Schedules: {
               include: {
                 ScheduleFoods: {
@@ -90,7 +91,17 @@ export const getCateringById = async (req: Request, res: Response) => {
       return;
     }
 
-    res.json(catering);
+    const response = {
+      ...catering,
+      Pakets: catering.Pakets.map((paket) => {
+        return {
+          ...paket,
+          kategori: paket.Kategori!.nama,
+          Kategori: undefined,
+        };
+      }),
+    };
+    res.json(response);
   } catch (error) {
     res.status(500).json({ error: error });
   }
@@ -100,9 +111,10 @@ export const getPaketById = async (req: Request, res: Response) => {
   const { paketId } = req.params;
 
   try {
-    const catering = await prisma.paket.findUnique({
+    const paket = await prisma.paket.findUnique({
       where: { id: paketId },
       include: {
+        Kategori: { select: { nama: true } },
         Schedules: {
           include: {
             ScheduleFoods: {
@@ -115,12 +127,18 @@ export const getPaketById = async (req: Request, res: Response) => {
       },
     });
 
-    if (!catering) {
-      res.status(404).json({ error: "Catering not found" });
+    if (!paket) {
+      res.status(404).json({ error: "paket not found" });
       return;
     }
 
-    res.json(catering);
+    const response = {
+      ...paket,
+      kategori: paket.Kategori!.nama,
+      Kategori: undefined,
+    };
+
+    res.json(response);
   } catch (error) {
     res.status(500).json({ error: error });
   }
