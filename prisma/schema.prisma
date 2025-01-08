@@ -67,6 +67,7 @@ model Manajemen {
 model Kategori {
   id        String        @id @default(uuid())
   nama      String
+  pakets    Paket[]
   kategoris KategoriMap[]
 }
 
@@ -88,11 +89,14 @@ model Paket {
   durasi     Int
   harga      Float
   deskripsi  String?
+  kategori   String     @default("1")
   Orders     Order[]
   catering   Catering   @relation(fields: [cateringId], references: [id])
   Schedules  Schedule[]
+  Kategori   Kategori?  @relation(fields: [kategori], references: [id])
 
   @@index([cateringId], map: "Paket_cateringId_fkey")
+  @@index([kategori], map: "Paket_kategori_fkey")
 }
 
 model Schedule {
@@ -145,8 +149,8 @@ model Order {
   cateringId  String
   totalHarga  Float
   tanggal     DateTime
-  durasi      Int
   statusOrder String    @db.VarChar(50)
+  durasi      Int
   catering    Catering  @relation(fields: [cateringId], references: [id], map: "Order_Owner_fkey")
   paket       Paket     @relation(fields: [paketId], references: [id], map: "Order_Paket_fkey")
   transaksi   Transaksi @relation(fields: [transaksiId], references: [id], map: "Order_Transaksi_fkey")
