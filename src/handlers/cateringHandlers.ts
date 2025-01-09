@@ -32,12 +32,13 @@ export const getAllCaterings = async (req: Request, res: Response) => {
   const { alamat } = req.body;
   try {
     const caterings = await prisma.catering.findMany({
+      where: alamat ? { alamat: { contains: alamat } } : {},
       include: {
         owner: true,
-        kategoris: true,
         Manajemens: true,
         Pakets: {
           include: {
+            Kategori: { select: { nama: true } },
             Schedules: {
               include: {
                 ScheduleFoods: {
@@ -50,10 +51,29 @@ export const getAllCaterings = async (req: Request, res: Response) => {
           },
         },
       },
-      where: { alamat: { contains: alamat as string } },
     });
 
-    res.json(caterings);
+    const response = caterings.map((catering) => {
+      const kategoris = [
+        ...new Set(
+          catering.Pakets.map((paket) => paket.Kategori?.nama).filter(
+            (nama) => nama !== undefined
+          )
+        ),
+      ];
+
+      return {
+        ...catering,
+        kategoris,
+        Pakets: catering.Pakets.map((paket) => ({
+          ...paket,
+          kategori: paket.Kategori!.nama,
+          Kategori: undefined,
+        })),
+      };
+    });
+
+    res.json(response);
   } catch (error) {
     res.status(500).json({ error: error });
   }
@@ -67,7 +87,6 @@ export const getCateringById = async (req: Request, res: Response) => {
       where: { id: cateringId },
       include: {
         owner: true,
-        kategoris: true,
         Manajemens: true,
         Pakets: {
           include: {
@@ -91,8 +110,17 @@ export const getCateringById = async (req: Request, res: Response) => {
       return;
     }
 
+    const kategoris = [
+      ...new Set(
+        catering.Pakets.map((paket) => paket.Kategori?.nama).filter(
+          (nama) => nama !== undefined
+        )
+      ),
+    ];
+
     const response = {
       ...catering,
+      kategoris,
       Pakets: catering.Pakets.map((paket) => {
         return {
           ...paket,
@@ -338,36 +366,12 @@ export const searchCatering = async (req: Request, res: Response) => {
     const caterings = await prisma.catering.findMany({
       where: {
         AND: [
-          // Filter by alamat if provided
           alamat ? { alamat: { contains: alamat } } : {},
           {
             OR: [
-              // Search in catering details
               { nama: { contains: query as string } },
               { deskripsi: { contains: query as string } },
               { alamat: { contains: query as string } },
-
-              // Search in kategori
-              {
-                kategoris: {
-                  some: {
-                    kategori: {
-                      nama: { contains: query as string },
-                    },
-                  },
-                },
-              },
-
-              // Search in paket names
-              {
-                Pakets: {
-                  some: {
-                    nama: { contains: query as string },
-                  },
-                },
-              },
-
-              // Search in makanan names
               {
                 Pakets: {
                   some: {
@@ -389,19 +393,25 @@ export const searchCatering = async (req: Request, res: Response) => {
           },
         ],
       },
-      include: {
-        owner: false,
-        kategoris: {
-          include: {
-            kategori: true,
-          },
-        },
+      select: {
+        id: true,
+        nama: true,
+        alamat: true,
+        hp: true,
+        rating: true,
+        deskripsi: true,
+        imageUrl: true,
         Pakets: {
-          include: {
+          select: {
+            Kategori: {
+              select: {
+                nama: true,
+              },
+            },
             Schedules: {
-              include: {
+              select: {
                 ScheduleFoods: {
-                  include: {
+                  select: {
                     makanan: true,
                   },
                 },
@@ -412,7 +422,42 @@ export const searchCatering = async (req: Request, res: Response) => {
       },
     });
 
-    res.json(caterings);
+    const formattedResponse = caterings.map((catering) => {
+      const allMakanan = new Set();
+      const kategoris = new Set();
+
+      catering.Pakets.forEach((paket) => {
+        if (paket.Kategori?.nama) {
+          kategoris.add(paket.Kategori.nama);
+        }
+        paket.Schedules.forEach((schedule) =>
+          schedule.ScheduleFoods.forEach((sf) =>
+            allMakanan.add(JSON.stringify(sf.makanan))
+          )
+        );
+      });
+
+      const makananArray = Array.from(allMakanan)
+        .map((m) => JSON.parse(m as string))
+        .sort((a, b) => {
+          const aMatch = a.nama
+            .toLowerCase()
+            .includes((query as string).toLowerCase());
+          const bMatch = b.nama
+            .toLowerCase()
+            .includes((query as string).toLowerCase());
+          return bMatch ? 1 : aMatch ? -1 : 0;
+        });
+
+      const { Pakets, ...cateringData } = catering;
+      return {
+        ...cateringData,
+        kategoris: Array.from(kategoris),
+        makanan: makananArray,
+      };
+    });
+
+    res.json(formattedResponse);
   } catch (error) {
     console.error("Search error:", error);
     res.status(500).json({ error: error });

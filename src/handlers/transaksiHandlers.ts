@@ -119,7 +119,24 @@ export const getTransaksiById = async (req: CustomRequest, res: Response) => {
       include: {
         Orders: {
           include: {
-            paket: true,
+            catering: {
+              select: {
+                nama: true,
+              },
+            },
+            paket: {
+              include: {
+                Schedules: {
+                  include: {
+                    ScheduleFoods: {
+                      include: {
+                        makanan: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
           },
         },
         customer: true,
